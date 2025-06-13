@@ -1,4 +1,9 @@
-@import "tailwindcss";
+@import "tailwindcss/base";
+@import "@radix-ui/themes/styles.css";
+@plugin "@tailwindcss/typography";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
