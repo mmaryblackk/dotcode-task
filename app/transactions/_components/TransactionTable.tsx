@@ -1,6 +1,6 @@
+import { Table, Text } from "@radix-ui/themes";
 import React from "react";
 import { Transaction } from "../page";
-import { Table, Text } from "@radix-ui/themes";
 
 type Props = {
   transactions: Transaction[];
