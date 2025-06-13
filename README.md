@@ -49,7 +49,7 @@ Key features include:
 
 You can check out the live version of the project deployed on Vercel:
 
-[View Live Version](https://your-vercel-app-url.vercel.app)
+[View Live Version](https://dotcode-task-eta.vercel.app/)
 
 ---
 
