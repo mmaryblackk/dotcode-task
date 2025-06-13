@@ -18,7 +18,7 @@ interface TransactionOutput {
 }
 
 export default function TransactionPage() {
-  const ws = useRef<WebSocket | null>(null);
+  const webSocket = useRef<WebSocket | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [total, setTotal] = useState(0);
@@ -26,51 +26,51 @@ export default function TransactionPage() {
   const satoshiToBTC = (sat: number) => sat / 1e8;
 
   const start = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ op: "unconfirmed_sub" }));
+    if (webSocket.current && webSocket.current.readyState === WebSocket.OPEN) {
+      webSocket.current.send(JSON.stringify({ op: "unconfirmed_sub" }));
       setIsSubscribed(true);
       return;
     }
-    ws.current = new WebSocket("wss://ws.blockchain.info/inv");
-    ws.current.onopen = () => {
-      ws.current?.send(JSON.stringify({ op: "unconfirmed_sub" }));
+    webSocket.current = new WebSocket("wss://ws.blockchain.info/inv");
+    webSocket.current.onopen = () => {
+      webSocket.current?.send(JSON.stringify({ op: "unconfirmed_sub" }));
       setIsSubscribed(true);
     };
-    ws.current.onmessage = (event) => {
+    webSocket.current.onmessage = (event) => {
       const data = JSON.parse(event.data);
       if (data.op === "utx") {
-        const tx = data.x;
-        const outputSumSat = tx.out.reduce(
+        const transaction = data.x;
+        const outputSumSat = transaction.out.reduce(
           (acc: number, output: TransactionOutput) => acc + output.value,
           0
         );
         const outputSumBTC = satoshiToBTC(outputSumSat);
 
-        const from = tx.inputs?.[0]?.prev_out?.addr || "Unknown";
-        const to = tx.out?.[0]?.addr || "Unknown";
+        const from = transaction.inputs?.[0]?.prev_out?.addr || "Unknown";
+        const to = transaction.out?.[0]?.addr || "Unknown";
 
-        const newTx: Transaction = {
-          hash: tx.hash,
+        const newTransaction: Transaction = {
+          hash: transaction.hash,
           from,
           to,
           value: outputSumBTC,
         };
 
-        setTransactions((prev) => [newTx, ...prev]);
+        setTransactions((prev) => [newTransaction, ...prev]);
         setTotal((prev) => +(prev + outputSumBTC).toFixed(8));
       }
     };
-    ws.current.onclose = () => {
+    webSocket.current.onclose = () => {
       setIsSubscribed(false);
     };
-    ws.current.onerror = () => {
+    webSocket.current.onerror = () => {
       setIsSubscribed(false);
     };
   };
 
   const stop = () => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(JSON.stringify({ op: "unconfirmed_unsub" }));
+    if (webSocket.current && webSocket.current.readyState === WebSocket.OPEN) {
+      webSocket.current.send(JSON.stringify({ op: "unconfirmed_unsub" }));
       setIsSubscribed(false);
     }
   };
@@ -82,7 +82,7 @@ export default function TransactionPage() {
 
   useEffect(() => {
     return () => {
-      ws.current?.close();
+      webSocket.current?.close();
     };
   }, []);
 
